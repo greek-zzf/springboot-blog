@@ -9,7 +9,7 @@ jobs:
           key: Zhouzf-{{ checksum "pom.xml" }}
       - run:
           name: Run Maven verify
-          command: mvn clean test
+          command: mvn clean test -P mavenCentral
       - save_cache: # saves the project dependencies
           paths: [~/.m2]
           key: Zhouzf-{{ checksum "pom.xml" }}
