@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Zhouzf
@@ -35,9 +36,16 @@ public class AuthController {
         this.userMapper = userMapper;
     }
 
-    @GetMapping("/auth")
-    public void auth() {
+    @GetMapping()
+    public Result auth() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User loggedUser = userService.getUserByUsername(username);
 
+        if (Objects.isNull(loggedUser)) {
+            return Result.loginFailure("ok", false);
+        } else {
+            return Result.loginSuccess("ok", true, loggedUser);
+        }
     }
 
     @PostMapping("/login")
@@ -53,7 +61,7 @@ public class AuthController {
 
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, password, Collections.emptyList());
 
-        User user = new User(1, "zhangsan");
+        User user = userService.getUserByUsername(username);
         try {
             authenticationManager.authenticate(usernamePasswordAuthenticationToken);
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
@@ -70,16 +78,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public Result register(@RequestBody Map<String, String> usernameAndPassword) {
-        if (isFirstRegister(usernameAndPassword.get("username"))) {
-            Map newUser = userService.save(usernameAndPassword.get("username"), usernameAndPassword.get("password"));
-            return Result.success("ok", "注册成功", newUser);
+        String username = usernameAndPassword.get("username");
+        String password = usernameAndPassword.get("password");
+
+        if (isFirstRegister(username)) {
+            userService.save(username, password);
+            return Result.success("ok", "注册成功", userService.getUserByUsername(username));
         } else {
             return Result.failure("fail", "当前用户已存在");
         }
     }
 
     private boolean isFirstRegister(String username) {
-        return !userService.getUserByUserName(username);
+        return Objects.isNull(userService.getUserByUsername(username));
     }
 
 

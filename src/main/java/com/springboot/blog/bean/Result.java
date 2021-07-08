@@ -20,6 +20,14 @@ public class Result {
         return new Result(status, msg, data);
     }
 
+    public static Result loginSuccess(String status, boolean isLogin, Object data) {
+        return new Result(status, isLogin, data);
+    }
+
+    public static Result loginFailure(String status, boolean isLogin) {
+        return new Result(status, isLogin);
+    }
+
 
     public String getStatus() {
         return status;
@@ -46,6 +54,17 @@ public class Result {
         this.status = status;
         this.msg = msg;
         this.data = data;
+    }
+
+    private Result(String status, boolean isLogin, Object data) {
+        this.status = status;
+        this.isLogin = isLogin;
+        this.data = data;
+    }
+
+    private Result(String status, boolean isLogin) {
+        this.status = status;
+        this.isLogin = isLogin;
     }
 
 }

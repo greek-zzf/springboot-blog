@@ -9,14 +9,16 @@ import java.time.Instant;
 public class User {
     private Integer id;
     private String username;
+    private String encryptedPassword;
     private String avatar;
     private Instant createdAt;
     private Instant updatedAt;
 
 
-    public User(Integer id, String username) {
+    public User(Integer id, String username, String encryptedPassword) {
         this.id = id;
         this.username = username;
+        this.encryptedPassword = encryptedPassword;
         this.avatar = "";
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
@@ -62,11 +64,20 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
+    public String getEncryptedPassword() {
+        return encryptedPassword;
+    }
+
+    public void setEncryptedPassword(String encryptedPassword) {
+        this.encryptedPassword = encryptedPassword;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
+                ", encryptedPassword='" + encryptedPassword + '\'' +
                 ", avatar='" + avatar + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
