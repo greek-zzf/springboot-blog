@@ -1,16 +1,14 @@
 package com.springboot.blog.service;
 
-import org.springframework.security.core.userdetails.User;
+import com.springboot.blog.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class UserService implements UserDetailsService {
-    private Map<String, String> database = new ConcurrentHashMap<>();
+    private Map<String, com.springboot.blog.entity.User> database = new ConcurrentHashMap<>();
 
     private PasswordEncoder passwordEncoder;
 
@@ -36,19 +34,16 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException(username + " 不存在!");
         }
 
-        String password = database.get(username);
-        return new User(username, password, Collections.emptyList());
+        User user = database.get(username);
+        return new org.springframework.security.core.userdetails.User(username, user.getEncryptedPassword(), Collections.emptyList());
     }
 
 
-    public Map save(String username, String password) {
-        database.put(username, passwordEncoder.encode(password));
-        Map<String, String> map = new HashMap();
-        map.put(username, password);
-        return map;
+    public void save(String username, String password) {
+        database.put(username, new com.springboot.blog.entity.User(1, username, passwordEncoder.encode(password)));
     }
 
-    public boolean getUserByUserName(String username) {
-        return database.containsKey(username) && StringUtils.hasText(database.get(username));
+    public com.springboot.blog.entity.User getUserByUsername(String username) {
+        return database.get(username);
     }
 }
