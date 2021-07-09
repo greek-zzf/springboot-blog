@@ -1,6 +1,7 @@
 package com.springboot.blog.service;
 
 import com.springboot.blog.entity.User;
+import com.springboot.blog.mapper.UserMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,8 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
 
 /**
  * @author Zhouzf
@@ -18,32 +18,32 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class UserService implements UserDetailsService {
-    private Map<String, com.springboot.blog.entity.User> database = new ConcurrentHashMap<>();
 
     private PasswordEncoder passwordEncoder;
+    private UserMapper userMapper;
 
     @Inject
-    public UserService(PasswordEncoder passwordEncoder) {
+    public UserService(PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.passwordEncoder = passwordEncoder;
-        save("zzf", "123456");
+        this.userMapper = userMapper;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (!database.containsKey(username)) {
+
+        User user = getUserByUsername(username);
+        if (Objects.isNull(user)) {
             throw new UsernameNotFoundException(username + " 不存在!");
         }
-
-        User user = database.get(username);
         return new org.springframework.security.core.userdetails.User(username, user.getEncryptedPassword(), Collections.emptyList());
     }
 
 
     public void save(String username, String password) {
-        database.put(username, new com.springboot.blog.entity.User(1, username, passwordEncoder.encode(password)));
+        userMapper.save(username, passwordEncoder.encode(password));
     }
 
     public com.springboot.blog.entity.User getUserByUsername(String username) {
-        return database.get(username);
+        return userMapper.findUserByUsername(username);
     }
 }

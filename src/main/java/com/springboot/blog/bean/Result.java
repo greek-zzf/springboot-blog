@@ -12,20 +12,25 @@ public class Result {
     private boolean isLogin;
 
 
-    public static Result failure(String status, String msg) {
-        return new Result(status, msg);
+    public static Result failure(String msg) {
+        return new Result("fail", msg);
     }
 
-    public static Result success(String status, String msg, Object data) {
-        return new Result(status, msg, data);
+
+    public static Result success(String msg, Object data) {
+        return new Result("ok", msg, data);
     }
 
-    public static Result loginSuccess(String status, boolean isLogin, Object data) {
-        return new Result(status, isLogin, data);
+    public static Result success(String msg) {
+        return new Result("ok", msg);
     }
 
-    public static Result loginFailure(String status, boolean isLogin) {
-        return new Result(status, isLogin);
+    public static Result success(boolean isLogin, Object data) {
+        return new Result("ok", isLogin, data);
+    }
+
+    public static Result success(boolean isLogin) {
+        return new Result("ok", isLogin);
     }
 
 
@@ -66,5 +71,4 @@ public class Result {
         this.status = status;
         this.isLogin = isLogin;
     }
-
 }

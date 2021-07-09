@@ -1,5 +1,7 @@
 package com.springboot.blog.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.Instant;
 
 /**
@@ -7,8 +9,11 @@ import java.time.Instant;
  * @date 2021/7/8/008 14:15
  */
 public class User {
+
     private Integer id;
     private String username;
+
+    @JsonIgnore
     private String encryptedPassword;
     private String avatar;
     private Instant createdAt;
