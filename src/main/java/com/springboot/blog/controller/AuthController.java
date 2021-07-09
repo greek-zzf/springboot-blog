@@ -37,6 +37,7 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
+
     @GetMapping
     public Result auth() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -110,15 +111,16 @@ public class AuthController {
 
         if (Objects.isNull(loggedUser)) {
             return Result.failure("用户尚未登录");
+          
         } else {
             SecurityContextHolder.clearContext();
             return Result.success("注销成功");
         }
     }
 
-
     private boolean isInvalidUsername(String username) {
         return !username.matches(USERNAME_REGEX);
+
     }
 
     private boolean isInvalidPassword(String password) {

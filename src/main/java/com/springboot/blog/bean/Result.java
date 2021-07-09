@@ -33,6 +33,14 @@ public class Result {
         return new Result("ok", isLogin);
     }
 
+    public static Result loginSuccess(String status, boolean isLogin, Object data) {
+        return new Result(status, isLogin, data);
+    }
+
+    public static Result loginFailure(String status, boolean isLogin) {
+        return new Result(status, isLogin);
+    }
+
 
     public String getStatus() {
         return status;
