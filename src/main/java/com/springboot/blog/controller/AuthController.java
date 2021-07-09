@@ -116,7 +116,6 @@ public class AuthController {
         }
     }
 
-
     private boolean isInvalidUsername(String username) {
         return !username.matches(USERNAME_REGEX);
     }
