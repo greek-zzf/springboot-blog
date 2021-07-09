@@ -2,14 +2,15 @@ package com.springboot.blog.controller;
 
 import com.springboot.blog.bean.Result;
 import com.springboot.blog.entity.User;
-import com.springboot.blog.mapper.UserMapper;
 import com.springboot.blog.service.UserService;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -27,36 +28,37 @@ public class AuthController {
 
     private UserService userService;
     private AuthenticationManager authenticationManager;
-    private UserMapper userMapper;
+
+    private static final String USERNAME_REGEX = "^[a-zA-Z0-9_\\u4e00-\\u9fa5]{1,15}$";
 
     @Inject
-    public AuthController(UserService userService, AuthenticationManager authenticationManager, UserMapper userMapper) {
+    public AuthController(UserService userService, AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
-        this.userMapper = userMapper;
     }
 
-    @GetMapping()
+
+    @GetMapping
     public Result auth() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedUser = userService.getUserByUsername(username);
 
         if (Objects.isNull(loggedUser)) {
-            return Result.loginFailure("ok", false);
+            return Result.success(false);
         } else {
-            return Result.loginSuccess("ok", true, loggedUser);
+            return Result.success(true, loggedUser);
         }
     }
 
     @PostMapping("/login")
-    public Object login(@RequestBody Map<String, String> usernameAndPassword) {
+    public Result login(@RequestBody Map<String, String> usernameAndPassword) {
         String username = usernameAndPassword.get("username");
         String password = usernameAndPassword.get("password");
         UserDetails userDetails;
         try {
             userDetails = userService.loadUserByUsername(username);
         } catch (UsernameNotFoundException e) {
-            return Result.failure("fail", "用户不存在");
+            return Result.failure("用户不存在");
         }
 
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, password, Collections.emptyList());
@@ -65,14 +67,10 @@ public class AuthController {
         try {
             authenticationManager.authenticate(usernamePasswordAuthenticationToken);
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            return Result.success("ok", "登录成功", user);
+            return Result.success("登录成功", user);
         } catch (BadCredentialsException e) {
-            return Result.failure("fail", "密码不正确");
+            return Result.failure("密码不正确");
         }
-    }
-
-    @GetMapping("/logout/success")
-    public void logoutSuccessHandle() {
     }
 
 
@@ -81,17 +79,52 @@ public class AuthController {
         String username = usernameAndPassword.get("username");
         String password = usernameAndPassword.get("password");
 
-        if (isFirstRegister(username)) {
+        if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
+            return Result.failure("账号或密码不能为空!");
+        }
+
+        if (isInvalidUsername(username)) {
+            return Result.failure("无效用户名!");
+        }
+
+        if (isInvalidPassword(password)) {
+            return Result.failure("无效密码!");
+        }
+
+
+        // 使用数据库的唯一值约束，避免重复用户添加，并且规避了高并发下用户注册的问题
+        try {
             userService.save(username, password);
-            return Result.success("ok", "注册成功", userService.getUserByUsername(username));
+        } catch (DuplicateKeyException e) {
+            return Result.failure("当前用户已存在");
+        }
+
+        return Result.success("注册成功", userService.getUserByUsername(username));
+    }
+
+
+    @GetMapping("/logout")
+    public Result logout() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User loggedUser = userService.getUserByUsername(username);
+
+        if (Objects.isNull(loggedUser)) {
+            return Result.failure("用户尚未登录");
+          
         } else {
-            return Result.failure("fail", "当前用户已存在");
+            SecurityContextHolder.clearContext();
+            return Result.success("注销成功");
         }
     }
 
-    private boolean isFirstRegister(String username) {
-        return Objects.isNull(userService.getUserByUsername(username));
+    private boolean isInvalidUsername(String username) {
+        return !username.matches(USERNAME_REGEX);
+
     }
 
+    private boolean isInvalidPassword(String password) {
+        return password.length() < 6 || password.length() > 16;
+    }
 
 }
