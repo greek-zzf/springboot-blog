@@ -105,9 +105,9 @@ public class AuthController {
 
     @GetMapping("/logout")
     public Result logout() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        User loggedUser = userService.getUserByUsername(username);
+        User loggedUser = userService.getUserByUsername(authentication == null ? null : authentication.getName());
 
         if (Objects.isNull(loggedUser)) {
             return Result.failure("用户尚未登录");
