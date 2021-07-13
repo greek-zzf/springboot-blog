@@ -4,41 +4,18 @@ package com.springboot.blog.bean;
  * @author Zhouzf
  * @date 2021/7/8/008 14:00
  */
-public class Result {
+public abstract class Result<T> {
 
     private String status;
-    private Object data;
+    private T data;
     private String msg;
-    private boolean isLogin;
-
-
-    public static Result failure(String msg) {
-        return new Result("fail", msg);
-    }
-
-
-    public static Result success(String msg, Object data) {
-        return new Result("ok", msg, data);
-    }
-
-    public static Result success(String msg) {
-        return new Result("ok", msg);
-    }
-
-    public static Result success(boolean isLogin, Object data) {
-        return new Result("ok", isLogin, data);
-    }
-
-    public static Result success(boolean isLogin) {
-        return new Result("ok", isLogin);
-    }
 
 
     public String getStatus() {
         return status;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
@@ -46,29 +23,11 @@ public class Result {
         return msg;
     }
 
-    public boolean isLogin() {
-        return isLogin;
-    }
 
-    private Result(String status, String msg) {
-        this.status = status;
-        this.msg = msg;
-    }
-
-    private Result(String status, String msg, Object data) {
+    protected Result(String status, String msg, T data) {
         this.status = status;
         this.msg = msg;
         this.data = data;
     }
 
-    private Result(String status, boolean isLogin, Object data) {
-        this.status = status;
-        this.isLogin = isLogin;
-        this.data = data;
-    }
-
-    private Result(String status, boolean isLogin) {
-        this.status = status;
-        this.isLogin = isLogin;
-    }
 }

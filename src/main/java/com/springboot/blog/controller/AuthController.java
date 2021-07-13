@@ -1,5 +1,6 @@
 package com.springboot.blog.controller;
 
+import com.springboot.blog.bean.LoginResult;
 import com.springboot.blog.bean.Result;
 import com.springboot.blog.entity.User;
 import com.springboot.blog.service.UserService;
@@ -44,9 +45,9 @@ public class AuthController {
         User loggedUser = userService.getUserByUsername(authentication == null ? null : authentication.getName());
 
         if (Objects.isNull(loggedUser)) {
-            return Result.success(false, "用户没有登陆");
+            return LoginResult.success("用户没有登陆", false);
         } else {
-            return Result.success(true, loggedUser);
+            return LoginResult.success(null, loggedUser, true);
         }
     }
 
@@ -58,7 +59,7 @@ public class AuthController {
         try {
             userDetails = userService.loadUserByUsername(username);
         } catch (UsernameNotFoundException e) {
-            return Result.failure("用户不存在");
+            return LoginResult.failure("用户不存在");
         }
 
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, password, Collections.emptyList());
@@ -67,9 +68,9 @@ public class AuthController {
         try {
             authenticationManager.authenticate(usernamePasswordAuthenticationToken);
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            return Result.success("登录成功", user);
+            return LoginResult.success("登录成功", user, true);
         } catch (BadCredentialsException e) {
-            return Result.failure("密码不正确");
+            return LoginResult.failure("密码不正确");
         }
     }
 
@@ -80,15 +81,15 @@ public class AuthController {
         String password = usernameAndPassword.get("password");
 
         if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
-            return Result.failure("账号或密码不能为空!");
+            return LoginResult.failure("账号或密码不能为空!");
         }
 
         if (isInvalidUsername(username)) {
-            return Result.failure("无效用户名!");
+            return LoginResult.failure("无效用户名!");
         }
 
         if (isInvalidPassword(password)) {
-            return Result.failure("无效密码!");
+            return LoginResult.failure("无效密码!");
         }
 
 
@@ -96,24 +97,23 @@ public class AuthController {
         try {
             userService.save(username, password);
         } catch (DuplicateKeyException e) {
-            return Result.failure("当前用户已存在");
+            return LoginResult.failure("当前用户已存在");
         }
 
-        return Result.success("注册成功", userService.getUserByUsername(username));
+        return LoginResult.success("注册成功", userService.getUserByUsername(username), false);
     }
 
 
     @GetMapping("/logout")
     public Result logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         User loggedUser = userService.getUserByUsername(authentication == null ? null : authentication.getName());
 
         if (Objects.isNull(loggedUser)) {
-            return Result.failure("用户尚未登录");
+            return LoginResult.failure("用户尚未登录");
         } else {
             SecurityContextHolder.clearContext();
-            return Result.success("注销成功");
+            return LoginResult.success("注销成功", false);
         }
     }
 
