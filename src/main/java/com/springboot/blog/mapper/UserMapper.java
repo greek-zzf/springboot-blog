@@ -19,4 +19,7 @@ public interface UserMapper {
     @Select("select id,username,encrypted_password,avatar,updated_at,created_at from user where username = #{username}")
     User findUserByUsername(String username);
 
+    @Select("select id,username,avatar from user where id = #{userId}")
+    User getUserById(@Param("userId") Integer userId);
+
 }

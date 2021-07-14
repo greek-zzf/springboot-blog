@@ -7,3 +7,10 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
+  mapper-locations:
+    - classpath:db/mybatis/*.xml
+  type-aliases-package: com.springboot.blog.entity
+
+logging:
+  level:
+    com.springboot.blog.mapper: debug

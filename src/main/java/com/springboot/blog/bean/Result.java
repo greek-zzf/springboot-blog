@@ -4,71 +4,38 @@ package com.springboot.blog.bean;
  * @author Zhouzf
  * @date 2021/7/8/008 14:00
  */
-public class Result {
+public abstract class Result<T> {
+    public enum ResultStatus {
+        OK("ok"),
+        FAIL("fail");
 
-    private String status;
-    private Object data;
-    private String msg;
-    private boolean isLogin;
+        private String status;
 
-
-    public static Result failure(String msg) {
-        return new Result("fail", msg);
+        ResultStatus(String status) {
+            this.status = status;
+        }
     }
 
+    ResultStatus status;
+    String msg;
+    T data;
 
-    public static Result success(String msg, Object data) {
-        return new Result("ok", msg, data);
+
+    protected Result(ResultStatus status, String msg, T data) {
+        this.status = status;
+        this.msg = msg;
+        this.data = data;
     }
-
-    public static Result success(String msg) {
-        return new Result("ok", msg);
-    }
-
-    public static Result success(boolean isLogin, Object data) {
-        return new Result("ok", isLogin, data);
-    }
-
-    public static Result success(boolean isLogin) {
-        return new Result("ok", isLogin);
-    }
-
 
     public String getStatus() {
-        return status;
-    }
-
-    public Object getData() {
-        return data;
+        return status.status;
     }
 
     public String getMsg() {
         return msg;
     }
 
-    public boolean isLogin() {
-        return isLogin;
-    }
-
-    private Result(String status, String msg) {
-        this.status = status;
-        this.msg = msg;
-    }
-
-    private Result(String status, String msg, Object data) {
-        this.status = status;
-        this.msg = msg;
-        this.data = data;
-    }
-
-    private Result(String status, boolean isLogin, Object data) {
-        this.status = status;
-        this.isLogin = isLogin;
-        this.data = data;
-    }
-
-    private Result(String status, boolean isLogin) {
-        this.status = status;
-        this.isLogin = isLogin;
+    public T getData() {
+        return data;
     }
 }
