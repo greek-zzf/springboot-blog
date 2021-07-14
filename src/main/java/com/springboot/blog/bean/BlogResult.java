@@ -2,42 +2,29 @@ package com.springboot.blog.bean;
 
 import com.springboot.blog.entity.Blog;
 
-import java.util.List;
-
 /**
  * @author Zhouzf
+ * @date 2021/7/14/014 13:57
  */
-public class BlogResult extends Result<List<Blog>> {
-
-    private int page;
-    private int total;
-    private int totalPage;
-
-    public static BlogResult newResult(List<Blog> blogs, int page, int total, int totalPage) {
-        return new BlogResult("ok", "获取成功", blogs, page, total, totalPage);
-    }
-
-    public static BlogResult failure(String msg) {
-        return new BlogResult("fail", msg, null, 0, 0, 0);
-    }
-
-
-    private BlogResult(String status, String msg, List<Blog> data, int page, int total, int totalPage) {
+public class BlogResult extends Result<Blog> {
+    protected BlogResult(ResultStatus status, String msg, Blog data) {
         super(status, msg, data);
-        this.page = page;
-        this.total = total;
-        this.totalPage = totalPage;
     }
 
-    public int getPage() {
-        return page;
+    public static BlogResult failure(String message) {
+        return new BlogResult(ResultStatus.FAIL, message, null);
     }
 
-    public int getTotal() {
-        return total;
+    public static BlogResult failure(Exception e) {
+        return new BlogResult(ResultStatus.FAIL, e.getMessage(), null);
     }
 
-    public int getTotalPage() {
-        return totalPage;
+    public static BlogResult success(String msg) {
+        return new BlogResult(ResultStatus.OK, msg, null);
     }
+
+    public static BlogResult success(String msg, Blog blog) {
+        return new BlogResult(ResultStatus.OK, msg, blog);
+    }
+
 }

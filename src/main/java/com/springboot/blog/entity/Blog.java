@@ -1,5 +1,7 @@
 package com.springboot.blog.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.Instant;
 
 /**
@@ -8,12 +10,29 @@ import java.time.Instant;
  */
 public class Blog {
     private Integer id;
+    @JsonIgnore
     private Integer userId;
     private String title;
     private String description;
     private String content;
     private Instant updatedAt;
     private Instant createdAt;
+
+    private User user;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Blog(Integer id, Integer userId, User user) {
+        this.id = id;
+        this.userId = userId;
+        this.user = user;
+    }
 
     public Integer getId() {
         return id;
@@ -70,4 +89,6 @@ public class Blog {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
+
+
 }

@@ -5,29 +5,37 @@ package com.springboot.blog.bean;
  * @date 2021/7/8/008 14:00
  */
 public abstract class Result<T> {
+    public enum ResultStatus {
+        OK("ok"),
+        FAIL("fail");
 
-    private String status;
-    private T data;
-    private String msg;
+        private String status;
 
-
-    public String getStatus() {
-        return status;
+        ResultStatus(String status) {
+            this.status = status;
+        }
     }
 
-    public T getData() {
-        return data;
+    ResultStatus status;
+    String msg;
+    T data;
+
+
+    protected Result(ResultStatus status, String msg, T data) {
+        this.status = status;
+        this.msg = msg;
+        this.data = data;
+    }
+
+    public String getStatus() {
+        return status.status;
     }
 
     public String getMsg() {
         return msg;
     }
 
-
-    protected Result(String status, String msg, T data) {
-        this.status = status;
-        this.msg = msg;
-        this.data = data;
+    public T getData() {
+        return data;
     }
-
 }

@@ -2,17 +2,20 @@ package com.springboot.blog.bean;
 
 import com.springboot.blog.entity.User;
 
+/**
+ * @author Zhouzf
+ */
 public class LoginResult extends Result<User> {
 
-    boolean isLogin;
+    private boolean isLogin;
 
-    protected LoginResult(String status, String msg, User user, boolean isLogin) {
+    protected LoginResult(ResultStatus status, String msg, User user, boolean isLogin) {
         super(status, msg, user);
         this.isLogin = isLogin;
     }
 
     public static Result success(String msg, User user, boolean isLogin) {
-        return new LoginResult("ok", msg, user, isLogin);
+        return new LoginResult(ResultStatus.OK, msg, user, isLogin);
     }
 
     public static Result success(String msg, boolean isLogin) {
@@ -20,7 +23,7 @@ public class LoginResult extends Result<User> {
     }
 
     public static Result failure(String msg) {
-        return new LoginResult("fail", msg, null, false);
+        return new LoginResult(ResultStatus.FAIL, msg, null, false);
     }
 
     public boolean isLogin() {

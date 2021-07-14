@@ -20,4 +20,14 @@ public interface BlogMapper {
     List<Blog> getBlogs(@Param("offset") Integer page, @Param("limit") Integer pageSize, @Param("userId") String userId);
 
     int count(String userId);
+
+    Blog getBlogById(Integer id);
+
+    boolean deleteBlogById(Integer id);
+
+    void insertBlog(Blog blog);
+
+    void updateBlog(Blog blog);
+
+
 }

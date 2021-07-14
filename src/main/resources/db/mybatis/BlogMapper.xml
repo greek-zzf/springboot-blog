@@ -2,12 +2,37 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mapper.BlogMapper">
-    <select id="getBlogs" resultType="com.springboot.blog.entity.Blog">
-        select *
-        from blog
+<mapper namespace="com.springboot.blog.mapper.BlogMapper">
+
+    <sql id="Base_Column_List">
+        b.id,b.user_id,b.title,b.description,b.content,b.updated_at,b.created_at
+    </sql>
+
+    <resultMap id="detailedBlogResultMap" type="Blog">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="content" column="content"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="createdAt" column="created_at"/>
+        <association property="user" javaType="com.springboot.blog.entity.User">
+            <id property="id" column="id"/>
+            <result property="username" column="username"/>
+            <result property="avatar" column="avatar"/>
+        </association>
+    </resultMap>
+
+
+    <select id="getBlogs" resultMap="detailedBlogResultMap">
+        select
+        <include refid="Base_Column_List"/>,
+        u.id as 'user.id',
+        u.username as 'user.username',
+        u.avatar as 'user.avatar'
+        from blog b
+        join user u on u.id = b.user_id
         <if test="userId != null">
-            where user_id = #{userId}
+            where b.user_id = #{userId}
         </if>
         limit #{offset},#{limit}
     </select>
@@ -16,4 +41,26 @@
         select count(1)
         from blog
     </select>
+
+    <select id="getBlogById" resultMap="detailedBlogResultMap">
+        select
+        <include refid="Base_Column_List"/>,
+        u.id as 'user.id',
+        u.username as 'user.username',
+        u.avatar as 'user.avatar'
+        from blog b
+        join user u on b.user_id = u.id
+        where b.id = #{id}
+    </select>
+
+    <delete id="deleteBlogById">
+        delete
+        from blog
+        where id = #{id}
+    </delete>
+
+    <insert id="insertBlog">
+        insert into blog (title, user_id, description, content, created_at)
+            value (#{title}, #{userId}, #{description}, #{content}, #{createdAt})
+    </insert>
 </mapper>
