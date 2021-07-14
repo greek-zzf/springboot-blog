@@ -8,6 +8,7 @@ import com.springboot.blog.mapper.BlogMapper;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -65,16 +66,18 @@ public class BlogService {
         }
     }
 
-    public BlogResult updateBlog(Blog blog, User user) {
-        Blog tobeUpdateBlog = blogMapper.getBlogById(blog.getId());
+    public BlogResult updateBlog(Integer updateBlogId, Blog blog) {
+        Blog tobeUpdateBlog = blogMapper.getBlogById(updateBlogId);
         if (Objects.isNull(tobeUpdateBlog)) {
             return BlogResult.failure("博客不存在");
         }
 
-        if (!user.getId().equals(tobeUpdateBlog.getUserId())) {
+        if (!blog.getUser().getId().equals(tobeUpdateBlog.getUserId())) {
             return BlogResult.failure("无法修改别人的博客");
         }
 
+        blog.setId(updateBlogId);
+        blog.setUpdatedAt(Instant.now());
         try {
             blogMapper.updateBlog(blog);
             return BlogResult.success("修改成功", blogMapper.getBlogById(blog.getId()));
@@ -84,6 +87,7 @@ public class BlogService {
     }
 
     public BlogResult createBlog(Blog blog) {
+        blog.setCreatedAt(Instant.now());
         try {
             blogMapper.insertBlog(blog);
             return BlogResult.success("创建成功", blogMapper.getBlogById(blog.getId()));

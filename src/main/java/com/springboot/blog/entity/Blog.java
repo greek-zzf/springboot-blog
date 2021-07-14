@@ -34,6 +34,8 @@ public class Blog {
         this.user = user;
     }
 
+    public Blog(){}
+
     public Integer getId() {
         return id;
     }

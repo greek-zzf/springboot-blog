@@ -5,12 +5,16 @@
 <mapper namespace="com.springboot.blog.mapper.BlogMapper">
 
     <sql id="Base_Column_List">
-        b.id,b.user_id,b.title,b.description,b.content,b.updated_at,b.created_at
+        b
+        .
+        id
+        ,b.user_id,b.title,b.description,b.content,b.updated_at,b.created_at
     </sql>
 
     <resultMap id="detailedBlogResultMap" type="Blog">
         <id property="id" column="id"/>
         <result property="title" column="title"/>
+        <result property="userId" column="user_id"/>
         <result property="description" column="description"/>
         <result property="content" column="content"/>
         <result property="updatedAt" column="updated_at"/>
@@ -34,6 +38,7 @@
         <if test="userId != null">
             where b.user_id = #{userId}
         </if>
+        order by b.created_at
         limit #{offset},#{limit}
     </select>
 
@@ -61,6 +66,15 @@
 
     <insert id="insertBlog">
         insert into blog (title, user_id, description, content, created_at)
-            value (#{title}, #{userId}, #{description}, #{content}, #{createdAt})
+            value (#{title}, #{user.id}, #{description}, #{content}, #{createdAt})
     </insert>
+
+    <update id="updateBlog">
+        update blog
+        set title=#{title}
+          , description = #{description}
+          , content = #{content}
+          , updated_at = #{updatedAt}
+        where id = #{id}
+    </update>
 </mapper>

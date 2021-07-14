@@ -29,12 +29,6 @@ public class BlogServiceTest {
     @InjectMocks
     BlogService blogService;
 
-//    @Test
-//    void getBlogFromDb() {
-//        blogService.getBlogs(1, 10, null);
-//        verify(blogMapper).getBlogs(1, 10, null);
-//    }
-
     @Test
     void returnFailureWhenExceptionThrow() {
         when(blogMapper.getBlogs(anyInt(), anyInt(), any())).thenThrow(RuntimeException.class);
