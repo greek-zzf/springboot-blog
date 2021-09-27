@@ -1,8 +1,10 @@
 package com.springboot.blog.config;
 
+import com.springboot.blog.filter.JsonLoginFilter;
 import com.springboot.blog.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,9 +28,14 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private static final String LOGIN_PROCESS_URL = "/auth/login";
+
     @Named("userService")
     @Inject
     private UserDetailsService userDetailsService;
+
+    @Inject
+    AuthenticationManager authenticationManager;
 
 
     @Override
@@ -38,7 +45,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests().antMatchers("/auth/**").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers(HttpMethod.GET,
+                        "/*.html",
+                        "/**/*.html",
+                        "/**/*.css",
+                        "/**/*.js"
+                ).permitAll()
+                .anyRequest().permitAll()
 
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -64,6 +77,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter();
+    }
+
+    @Bean
+    public JsonLoginFilter jsonLoginFilter() {
+        JsonLoginFilter jsonLoginFilter = new JsonLoginFilter(authenticationManager);
+        jsonLoginFilter.setFilterProcessesUrl(LOGIN_PROCESS_URL);
+        return jsonLoginFilter;
     }
 
 }

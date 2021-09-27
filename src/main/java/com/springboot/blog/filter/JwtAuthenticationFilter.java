@@ -22,6 +22,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String tokenHead;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return true;
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
         // 认证通过，直接放行
