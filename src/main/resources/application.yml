@@ -14,3 +14,6 @@ mybatis:
 logging:
   level:
     com.springboot.blog.mapper: debug
+
+jwt:
+  tokenHead: "Bearer "
