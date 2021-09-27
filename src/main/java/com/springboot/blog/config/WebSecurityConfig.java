@@ -1,5 +1,6 @@
 package com.springboot.blog.config;
 
+import com.springboot.blog.bean.LoginResult;
 import com.springboot.blog.filter.JsonLoginFilter;
 import com.springboot.blog.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.inject.Inject;
@@ -54,8 +57,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().permitAll()
 
                 .and()
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling().accessDeniedHandler(accessDeniedException()).authenticationEntryPoint(authenticationEntryPoint());
     }
 
 
@@ -84,6 +87,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         JsonLoginFilter jsonLoginFilter = new JsonLoginFilter(authenticationManager);
         jsonLoginFilter.setFilterProcessesUrl(LOGIN_PROCESS_URL);
         return jsonLoginFilter;
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedException() {
+        return (request, response, accessDeniedException) -> LoginResult.failure("无权限访问！");
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> LoginResult.failure("账号或密码错误！");
     }
 
 }
