@@ -3,6 +3,7 @@ package com.springboot.blog.config;
 import com.springboot.blog.bean.LoginResult;
 import com.springboot.blog.filter.JsonLoginFilter;
 import com.springboot.blog.filter.JwtAuthenticationFilter;
+import com.springboot.blog.util.ResponseWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.inject.Inject;
@@ -39,6 +42,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Inject
     AuthenticationManager authenticationManager;
+    @Inject
+    AuthenticationFailureHandler authenticationFailureHandler;
+    @Inject
+    AuthenticationSuccessHandler authenticationSuccessHandler;
 
 
     @Override
@@ -86,17 +93,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public JsonLoginFilter jsonLoginFilter() {
         JsonLoginFilter jsonLoginFilter = new JsonLoginFilter(authenticationManager);
         jsonLoginFilter.setFilterProcessesUrl(LOGIN_PROCESS_URL);
+        jsonLoginFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        jsonLoginFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
         return jsonLoginFilter;
     }
 
     @Bean
     public AccessDeniedHandler accessDeniedException() {
-        return (request, response, accessDeniedException) -> LoginResult.failure("无权限访问！");
+        return (request, response, accessDeniedException) -> ResponseWriter.toJson(response, LoginResult.failure("无权限访问！"));
     }
 
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
-        return (request, response, authException) -> LoginResult.failure("账号或密码错误！");
+        return (request, response, authException) -> ResponseWriter.toJson(response, LoginResult.failure("账号或密码错误！"));
     }
 
 }
