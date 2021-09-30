@@ -7,6 +7,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
 /**
  * @author Zhaofeng Zhou
  * @date 2021/9/27 18:04
@@ -22,5 +23,6 @@ public class ResponseWriter<T> {
         try (ServletOutputStream so = response.getOutputStream()) {
             so.write(responseBody);
         }
+
     }
 }
