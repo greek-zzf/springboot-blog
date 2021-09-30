@@ -1,10 +1,12 @@
 package com.springboot.blog.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
+
 
 /**
  * @author Zhaofeng Zhou
@@ -14,12 +16,13 @@ public class ResponseWriter<T> {
 
     public static <T> void toJson(HttpServletResponse response, T data) throws IOException {
         response.setStatus(HttpServletResponse.SC_OK);
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("utf-8");
 
-        String responseBody = new ObjectMapper().writeValueAsString(data);
-        PrintWriter printWriter = response.getWriter();
-        printWriter.print(responseBody);
-        printWriter.flush();
-        printWriter.close();
+        byte[] responseBody = new ObjectMapper().registerModule(new JavaTimeModule())
+                .writeValueAsBytes(data);
+        try (ServletOutputStream so = response.getOutputStream()) {
+            so.write(responseBody);
+        }
+
     }
 }

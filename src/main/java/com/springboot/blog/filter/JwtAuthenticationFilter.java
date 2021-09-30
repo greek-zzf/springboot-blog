@@ -1,9 +1,20 @@
 package com.springboot.blog.filter;
 
+
+import com.springboot.blog.util.JwtUtils;
+import com.springboot.blog.util.RedisUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -11,6 +22,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
+
 
 /**
  * @author Zhaofeng Zhou
@@ -20,42 +33,96 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Value("${jwt.tokenHead}")
     private String tokenHead;
+    @Autowired
+    private AuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         return true;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-        // 认证通过，直接放行
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            chain.doFilter(request, response);
+
+        if (isAuthenticated()) {
+            doNextFilter(request, response, chain);
         }
 
-        // 获取 token 信息
-        String token = getTokenFormRequestHeader(request);
-        // 校验 token
-        checkToken(token);
-        // 验证通过放行
+        String authorizationHeaderMsg = getAuthorizationHeader(request);
+        if (isValidAuthorizationHeader(authorizationHeaderMsg)) {
+            String token = getTokenFormAuthorizationStr(authorizationHeaderMsg);
+
+            try {
+                authenticateToken(token, request);
+            } catch (AuthenticationException ex) {
+                authenticationEntryPoint.commence(request, response, ex);
+            }
+
+        }
+
+        doNextFilter(request, response, chain);
+    }
+
+    private boolean isValidAuthorizationHeader(String authorizationHeaderMsg) {
+        return StringUtils.isNotBlank(authorizationHeaderMsg) && StringUtils.startsWith(authorizationHeaderMsg, tokenHead);
+    }
+
+    private boolean isAuthenticated() {
+        return SecurityContextHolder.getContext().getAuthentication() != null;
+    }
+
+
+    private void doNextFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         chain.doFilter(request, response);
     }
 
-    private void checkToken(String token) {
 
+    private String getAuthorizationHeader(HttpServletRequest request) {
+        return request.getHeader(HttpHeaders.AUTHORIZATION);
+    }
+
+    private String getTokenFormAuthorizationStr(String authorizationMsg) {
+        return authorizationMsg.replace(tokenHead, "");
     }
 
 
-    private String getTokenFormRequestHeader(HttpServletRequest request) {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+    private void authenticateToken(String token, HttpServletRequest request) {
+        checkToken(token);
 
-        if (StringUtils.hasText(header) && header.startsWith(tokenHead)) {
-            String token = header.replace(tokenHead, "");
-            if (StringUtils.hasText(token)) {
-                return token;
-            }
+        String username = JwtUtils.getUsernameFromToken(token);
+        checkUsername(username);
+
+        String accessToken = RedisUtils.getTokenByUsername(username);
+        checkAccessTokenThenEqualWithToken(accessToken, token);
+
+        createSuccessAuthentication(username, request);
+    }
+
+    private void checkAccessTokenThenEqualWithToken(String accessToken, String token) {
+        if (StringUtils.isEmpty(accessToken) || JwtUtils.isExpiredToken(accessToken) || !StringUtils.equals(token, accessToken)) {
+            throw new CredentialsExpiredException("登录过期！");
         }
-        throw new RuntimeException("token not found!");
     }
+
+
+    private void checkUsername(String username) {
+        checkTokenOrUsername(username);
+    }
+
+    private void checkToken(String token) {
+        checkTokenOrUsername(token);
+    }
+
+    private void checkTokenOrUsername(String tokenOrUsername) {
+        if (null == tokenOrUsername) {
+            throw new BadCredentialsException("无效的 token 信息！");
+        }
+    }
+
+    private void createSuccessAuthentication(String username, HttpServletRequest request) {
+        User user = new User(username, "[PROTECTED]", Collections.emptyList());
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user, null, null);
+        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 }

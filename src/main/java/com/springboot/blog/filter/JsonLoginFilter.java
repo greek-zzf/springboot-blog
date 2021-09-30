@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -26,11 +27,12 @@ public class JsonLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected String obtainUsername(HttpServletRequest request) {
-        JsonNode body = null;
-        try {
-            body = new ObjectMapper().readValue(request.getInputStream(), JsonNode.class);
+        JsonNode body;
+        try (ServletInputStream sis = request.getInputStream()) {
+            body = new ObjectMapper().readValue(sis, JsonNode.class);
         } catch (IOException e) {
             log.error("read request body error");
+            return null;
         }
         passwordThreadLocal.set(body.get(SPRING_SECURITY_FORM_PASSWORD_KEY).asText());
         return body.get(SPRING_SECURITY_FORM_USERNAME_KEY).asText();
