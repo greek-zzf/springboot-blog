@@ -5,7 +5,6 @@ import com.springboot.blog.bean.Result;
 import com.springboot.blog.entity.User;
 import com.springboot.blog.service.UserService;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Zhouzf
@@ -24,14 +23,12 @@ import java.util.Objects;
 public class AuthController {
 
     private UserService userService;
-    private AuthenticationManager authenticationManager;
 
     private static final String USERNAME_REGEX = "^[a-zA-Z0-9_\\u4e00-\\u9fa5]{1,15}$";
 
     @Inject
-    public AuthController(UserService userService, AuthenticationManager authenticationManager) {
+    public AuthController(UserService userService) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
     }
 
 
@@ -67,14 +64,16 @@ public class AuthController {
     @GetMapping("/logout")
     public Result logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User loggedUser = userService.getUserByUsername(authentication == null ? null : authentication.getName());
 
-        if (Objects.isNull(loggedUser)) {
-            return LoginResult.failure("用户尚未登录");
-        } else {
-            SecurityContextHolder.clearContext();
-            return LoginResult.success("注销成功", false);
-        }
+        return Optional.ofNullable(authentication)
+                .map(authen -> userService.getUserByUsername(authen.getName()))
+                .map(this::executeLogout)
+                .orElse(LoginResult.failure("用户尚未登录"));
+    }
+
+    private Result executeLogout(User loggedUser) {
+        SecurityContextHolder.clearContext();
+        return LoginResult.success("注销成功", false);
     }
 
     private boolean isInvalidUsername(String username) {
