@@ -1,5 +1,6 @@
 package com.springboot.blog.filter;
 
+
 import com.springboot.blog.util.JwtUtils;
 import com.springboot.blog.util.RedisUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 
+
 /**
  * @author Zhaofeng Zhou
  * @date 2021/9/27/027 14:05
@@ -41,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+
 
         if (isAuthenticated()) {
             doNextFilter(request, response, chain);
@@ -122,5 +125,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user, null, null);
         usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-    }
 }
