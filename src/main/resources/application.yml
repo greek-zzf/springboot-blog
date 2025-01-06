@@ -1,18 +1,36 @@
-spring:
-  datasource:
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1/blog?useUnicode=true&characterEncoding=UTF-8
-mybatis:
-  configuration:
-    map-underscore-to-camel-case: true
-  mapper-locations:
-    - classpath:db/mybatis/*.xml
-  type-aliases-package: com.springboot.blog.entity
 
-logging:
-  level:
-    com.springboot.blog.mapper: debug
-jwt:
-  tokenHead: "Bearer "
+
+alipay:
+  appId: 2021000118662385
+  privateKey: "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC1FNklRKeI6kv6
+  0+fhPJS5rX9/+FUhlgP3O3vRs2SMjqYW3e58eVyvZK/VaMq/v454IEK6e94195nS
+  8gsS42T5tUxjP68MV61r1Jjt27U2LsqtVHZx1UmHdzosKybHDDDpn3BRtFDByE7H
+  p5dwo+C6E/+HXa6m+uHwoc4ImZgOxqOUWzi1og+i7MAX/xc1fd1q6Xlo0xqcUVGK
+  hILwcJlzy1XmUNIDJrybmcf2yChHDBvXXY0EV5LyY8qeQ9i54QmqkIMOarJf7jn9
+  7SMSxp/kAdC4fjCaf+xnx90YzOz5omusRn7khxI18PGGNtvivfLZa++bVK1mEWzo
+  qkpHixUlAgMBAAECggEANcQZ8YHgCLwgkTpIGE2Hj1YfjFys0ksbpFXqHsqYKU/V
+  quZ8gEL8rStFNiVmRebXo31YssxCn12EM+kgNpyEB8y4AKQREqYZ3PGD8uQQeyUL
+  ksmIXaZJrcpN4H1zhxhskYGAtRHIBLG4CnoNcimGeVmkvomnaPcHDQ7OASmxx3jd
+  GQXoU3Anzv8MyRuRWCnFOHudNYhsBamCUn37z1GuvCNz9O1GCHsvQqpozXwQVlbf
+  +GCstzPpDMUWDhuVho882PzQFp2j+drJk3lzwMLeFGjef4b5siS+Tg0sJQqynbUy
+  pw4HhGj3wZmR+vXPM38CAZv+6xDKrxNdU6Rb/v8c4QKBgQDqa2Of9qxI32DDbciE
+  yf2L83AGEkZopPnIaJPZJiDfYg0RcGDiH7oBA+4+EdXOaOQKEEtMFgqsW8A73kmW
+  IV3oO+j30Qqlu7T9x6PZTiyD3XVYWnA8AfHC8wKyef49GvVLOUa8/kZNzWb1ODAj
+  OI4hD8HRGjczy0GZQXDoPrJLeQKBgQDFwG47TvU1HP7T0Fjt21MYsiAc9GlkBD2o
+  hb/nVFYX87FY3EYRrQW5ysWUwzDDyyS8p+WFwDUIXR6iD2d/hMgTO+4O7/725sg/
+  OKdqVs7hNxgzKY5uxdu8dmUtv6WAHzHxklBvUHQ0WBpgcLU3+FfR4odyTnFLWbdJ
+  KUzie9dADQKBgDdsko50nQFRxygNodY7h7X6JadZ1MnTD7eheitiR21pWlugLVfp
+  Vmn9Cuwj/WAjDp+OgK8JmxZrTwUYpl9XnkNVPtyw0QqkWcOS2xt6zy2SQ7dTEqwt
+  bYLBQAcAruq1n/9cGGyA1hB5GvmpgkAhlAEfH50XzKtzSBw7C73tbOxJAoGAJDPs
+  elMkNQsP4/s6rKEAf37sviBIwxS7rQR/c3xPHqdwilIZSdchOzhSH7/0R4QDP76F
+  GI1tqBBUMVscmY3Xix3noThytwTdGCXpEGDAEx8hAQzUlJcIeWI7d7qkM+aCIDWn
+  IBncjFCs04cOxiZi/Xu5TEXsG91a3rv+5V/CsmkCgYEAlAwT8sjQcwUI4LAH5Yz2
+  4coumaPIKxuJGn/euJkZUboJ5XVyFH0tmzS9tq6eSjtSEfRHposprGSvT4h3CtFH
+  gP0YsiVvxbILSIsjTjObgmBikLFHYB9iXWh88pNFGCpN9lOM0BFXdDADV8vZdInU
+  bUzIPixncASkE/5VjGb/mzk="
+  aliPayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkm0EUhjk/vxkOsaeH/KrRn+f6ADGcg2TwjeFR19SQWXoAluAC84s+Ctnm4aIJw+EVL7mcYNwUUXiGqXCAd8Foqv8b1n4MnyK/muj49p4Kq8n8g7OsdzwKbd1q3Qk92++6qM3xgxxTXf3PgzYjsOGjfhVTZszMlJZubzrGp1BUqEZBAXGcxt5TgpO5AxT6khY4sN/tBDKj62mH3S8dtPlmHr42MKGVkK90RK4nZLJi2kT/dAdl18J+zo6VmJ3XIZ+dVY3/q0xNk/NGV41KO8Tdv0vwg/ryRDZkSi7cGczTt7IZlPtMING6HegCQja4Q2dKA5/0JtgfmNEVLsOv5Tj7QIDAQAB
+  notifyUrl: http://xxx.com/notify
+  returnUrl: http://xxx.com/return
+  sandbox: true #是否使用沙箱
+server:
+  port: 8089
